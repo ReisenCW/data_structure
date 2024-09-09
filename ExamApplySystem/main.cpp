@@ -22,7 +22,8 @@ void printArray(int arr[],int length) {
 int main() {
 	enum SortType	//排序算法的类型
 	{	
-		Bubble = 1,
+		Clear = 0,
+		Bubble,
 		Selection,
 		Direct,
 		Shell,
@@ -34,18 +35,7 @@ int main() {
 	};
 	srand(static_cast<unsigned int>(time(0)));//随机数种子
 	//菜单
-	cout << "**\t\t  排序算法比较 \t\t\t**" << endl;
-	cout << "==================================================" << endl;
-	cout << "**\t\t1 --- 冒泡排序 \t\t\t**" << endl;
-	cout << "**\t\t2 --- 选择排序 \t\t\t**" << endl;
-	cout << "**\t\t3 --- 直接插入排序 \t\t**" << endl;
-	cout << "**\t\t4 --- 希尔排序 \t\t\t**" << endl;
-	cout << "**\t\t5 --- 快速排序 \t\t\t**" << endl;
-	cout << "**\t\t6 --- 堆排序 \t\t\t**" << endl;
-	cout << "**\t\t7 --- 归并排序 \t\t\t**" << endl;
-	cout << "**\t\t8 --- 基数排序 \t\t\t**" << endl;
-	cout << "**\t\t9 --- 退出程序 \t\t\t**" << endl;
-	cout << "==================================================" << endl;
+	printMenu();
 	Info information; //存储排序算法的信息
 	bool running = true;//选择退出时变为false
 	int choice;//选择排序算法
@@ -70,7 +60,7 @@ int main() {
 		//选择排序算法
 		cout << "选择排序算法: ";
 		cin >> choice;
-		while(!cin.good()&&(choice < 1 || choice > 9)) {
+		while(!cin.good()&&(choice < 0 || choice > 9)) {
 			cout << "输入错误,请重新输入: ";
 			cin.clear();
 			cin >> choice;
@@ -85,6 +75,11 @@ int main() {
 		printArray(copyArr,randomNum);
 #endif
 		switch (static_cast<SortType>(choice)) {
+		case Clear:
+			system("cls");//清屏
+			printMenu();//打印菜单
+			cout << "输入随机数的个数: " << randomNum;//打印随机数的个数
+			break;
 		case Bubble:
 			information = BubbleSort(copyArr, randomNum);
 			printOutcome("冒泡排序", information);
@@ -127,5 +122,6 @@ int main() {
 
 	delete[] randomArr;
 	delete[] copyArr;
+	system("pause");
 	return 0;
 }

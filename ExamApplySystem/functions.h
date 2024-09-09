@@ -5,6 +5,8 @@ using namespace std;
 
 void printOutcome(const char* ch, const Info& info);
 
+void printMenu();
+
 Info BubbleSort(int arr[], int length);
 
 Info SelectionSort(int arr[], int length);

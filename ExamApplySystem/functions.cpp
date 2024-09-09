@@ -7,6 +7,22 @@ void printOutcome(const char* ch,const Info& info){
 	cout << ch << "½»»»´ÎÊý: \t" << info.exchangeTimes << "´Î" << endl;
 }
 
+void printMenu() {
+	cout << "**\t\t  ÅÅÐòËã·¨±È½Ï \t\t\t**" << endl;
+	cout << "==================================================" << endl;
+	cout << "**\t\t0 --- ÇåÆÁ \t\t\t**" << endl;
+	cout << "**\t\t1 --- Ã°ÅÝÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t2 --- Ñ¡ÔñÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t3 --- Ö±½Ó²åÈëÅÅÐò \t\t**" << endl;
+	cout << "**\t\t4 --- Ï£¶ûÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t5 --- ¿ìËÙÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t6 --- ¶ÑÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t7 --- ¹é²¢ÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t8 --- »ùÊýÅÅÐò \t\t\t**" << endl;
+	cout << "**\t\t9 --- ÍË³ö³ÌÐò \t\t\t**" << endl;
+	cout << "==================================================" << endl;
+}
+
 //Ã°ÅÝÅÅÐò
 Info BubbleSort(int arr[], int length) {
 	Info result;
