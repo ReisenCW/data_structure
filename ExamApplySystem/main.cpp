@@ -5,7 +5,7 @@
 #include <ctime>
 using namespace std;
 
-#define DEBUG 1
+#define DEBUG 0
 
 //调试用代码
 #if DEBUG
@@ -35,7 +35,7 @@ int main() {
 	srand(static_cast<unsigned int>(time(0)));//随机数种子
 	//菜单
 	cout << "**\t\t  排序算法比较 \t\t\t**" << endl;
-	cout << "===================================================" << endl;
+	cout << "==================================================" << endl;
 	cout << "**\t\t1 --- 冒泡排序 \t\t\t**" << endl;
 	cout << "**\t\t2 --- 选择排序 \t\t\t**" << endl;
 	cout << "**\t\t3 --- 直接插入排序 \t\t**" << endl;
@@ -45,7 +45,7 @@ int main() {
 	cout << "**\t\t7 --- 归并排序 \t\t\t**" << endl;
 	cout << "**\t\t8 --- 基数排序 \t\t\t**" << endl;
 	cout << "**\t\t9 --- 退出程序 \t\t\t**" << endl;
-	cout << "===================================================" << endl;
+	cout << "==================================================" << endl;
 	Info information; //存储排序算法的信息
 	bool running = true;//选择退出时变为false
 	int choice;//选择排序算法
@@ -94,13 +94,15 @@ int main() {
 			printOutcome("选择排序", information);
 			break;
 		case Direct:
-			
+			information = DirectInsertion(copyArr, randomNum);
+			printOutcome("直接插入排序", information);
 			break;
 		case Shell:
 			
 			break;
 		case Quick:
-			
+			information = QuickSort(copyArr,randomNum);
+			printOutcome("快速排序",information);
 			break;
 		case Heap:
 			
@@ -116,7 +118,7 @@ int main() {
 			break;
 		}
 		cout << endl;
-#ifdef DEBUG
+#if DEBUG
 		cout << "排序后";
 		printArray(copyArr,randomNum);
 #endif

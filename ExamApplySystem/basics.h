@@ -8,7 +8,7 @@ class Info
 {
 public:
 	Info() :exchangeTimes(0), time(0) {}
-	int exchangeTimes;//记录交换次数
+	long long exchangeTimes;//记录交换次数,用long long防止溢出
 	double time;//记录时间
 };
 
@@ -27,7 +27,7 @@ public:
 
 	~Timer() {
 		auto end = chrono::high_resolution_clock::now();//end time
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);//毫秒
-		timePtr->time = static_cast<double>(duration.count());//cast
+		auto duration = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(end - start);//毫秒,double类型
+		timePtr->time = duration.count();
 	}
 };
