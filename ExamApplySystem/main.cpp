@@ -81,6 +81,7 @@ int main() {
 		}
 #if DEBUG
 		cout << endl;
+		cout << "≈≈–Ú«∞";
 		printArray(copyArr,randomNum);
 #endif
 		switch (static_cast<SortType>(choice)) {
@@ -89,7 +90,8 @@ int main() {
 			printOutcome("√∞≈›≈≈–Ú", information);
 			break;
 		case Selection:
-			
+			information = SelectionSort(copyArr, randomNum);
+			printOutcome("—°‘Ò≈≈–Ú", information);
 			break;
 		case Direct:
 			
@@ -115,6 +117,7 @@ int main() {
 		}
 		cout << endl;
 #ifdef DEBUG
+		cout << "≈≈–Ú∫Û";
 		printArray(copyArr,randomNum);
 #endif
 		

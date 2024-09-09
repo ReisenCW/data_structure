@@ -26,3 +26,24 @@ Info BubbleSort(int arr[], int length) {
 	}
 	return result;
 }
+
+Info SelectionSort(int arr[], int length) {
+	Info result;
+	{
+		Timer t(&result);//计时器
+		for (int i = 0; i < length; i++) {
+			int minIndex = i;
+			for (int j = i+1; j < length; j++) {
+				if (arr[j] < arr[minIndex]) {
+					minIndex = j;//找出下标i之后最小的数,和arr[i]交换
+				}
+			}
+			//交换
+			int temp = arr[i];
+			arr[i] = arr[minIndex];
+			arr[minIndex] = temp;
+			result.exchangeTimes++;
+		}
+	}
+	return result;
+}
