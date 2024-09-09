@@ -1,47 +1,24 @@
 #include "functions.h"
-
-struct Info
-{
-	int exchangeTimes;
-	double time;
-};
-
-class Timer {
-	//pass in a ptr that point to a struct Info,
-	//after the scope ends,this class will pass the time value to the time member of Info
-private:
-	chrono::steady_clock::time_point start;
-	Info* timePtr;
-public:
-	Timer(Info* ptr) {
-		auto start = chrono::high_resolution_clock::now();//start time
-		timePtr = ptr;
-	}
-
-	~Timer() {
-		auto end = chrono::high_resolution_clock::now();//end time
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		timePtr->time = static_cast<double>(duration.count());//cast
-	}
-};
+#include "basics.h"
+#include <iomanip> 
 
 void printOutcome(const char* ch,const Info& info){
-	cout << ch << "takes time: \t\t" << info.time << endl;
-	cout << ch << "makes exhanges: \t\t" << info.exchangeTimes << endl;
+	cout << ch << "所用时间: \t\t" << std::fixed << std::setprecision(4) << info.time << "毫秒" << endl; //输出精度为小数点后四位
+	cout << ch << "交换次数: \t\t" << info.exchangeTimes << "次" << endl;
 }
 
 Info BubbleSort(int arr[], int length) {
-	Info result = { 0,0 };
+	Info result;
 	{
-		Timer t(&result);
+		Timer t(&result);//计时器
 		for (int i = 0; i < length; i++)
 		{
-			for (int j = i + 1; j < length; j++) {
-				if (arr[i] > arr[j]) {
-					//if the former one is smaller ,switch arr[i] and arr[j]
-					int temp = arr[i];
-					arr[i] = arr[j];
-					arr[i] = temp;
+			for (int j = 0; j < length-i-1; j++) {
+				if (arr[j] > arr[j+1]) {
+					//如果arr[j]大于arr[j+1]，交换两者
+					int temp = arr[j];
+					arr[j] = arr[j+1];
+					arr[j+1] = temp;
 					result.exchangeTimes++;
 				}
 			}

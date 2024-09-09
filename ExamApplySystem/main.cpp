@@ -1,10 +1,27 @@
+//排序算法比较
 #include <iostream>
 #include "functions.h"
+#include "basics.h"
 #include <ctime>
 using namespace std;
 
+#define DEBUG 1
+
+//调试用代码
+#if DEBUG
+void printArray(int arr[],int length) {
+	cout << "数组为: ";
+	for (size_t i = 0; i < length; i++) {
+		cout << arr[i] << " ";
+	}
+	cout << endl;
+	cout << endl;
+}
+#endif
+
 int main() {
-	enum SortType {
+	enum SortType	//排序算法的类型
+	{	
 		Bubble = 1,
 		Selection,
 		Direct,
@@ -15,63 +32,95 @@ int main() {
 		Radix,
 		Exit
 	};
-	srand(static_cast<unsigned int>(time(0)));
-	int randomArr[static_cast<int>(1e6)];
-	cout << "**\t\t\t\t Sort Algorithm Comparison\t\t\t\t**";
-	cout << "==============================================";
-	cout << "**\t\t\t\t1 --- Bubble Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t2 --- Selection Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t3 --- Direct Insertation sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t4 --- Shell Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t5 --- Quick Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t6 --- Heap Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t7 --- Merge Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t8 --- Radix Sort ---\t\t\t\t**";
-	cout << "**\t\t\t\t9 --- Exit Program ---\t\t\t\t**";
-	Info information; //store the outcome of the functions
-	bool running = true;//becomes false when choosing 9.Exit
-	int choice = 0;
-	int randomNum = 0;
-	cout << "please type in the number of random numbers: ";
+	srand(static_cast<unsigned int>(time(0)));//随机数种子
+	//菜单
+	cout << "**\t\t  排序算法比较 \t\t\t**" << endl;
+	cout << "===================================================" << endl;
+	cout << "**\t\t1 --- 冒泡排序 \t\t\t**" << endl;
+	cout << "**\t\t2 --- 选择排序 \t\t\t**" << endl;
+	cout << "**\t\t3 --- 直接插入排序 \t\t**" << endl;
+	cout << "**\t\t4 --- 希尔排序 \t\t\t**" << endl;
+	cout << "**\t\t5 --- 快速排序 \t\t\t**" << endl;
+	cout << "**\t\t6 --- 堆排序 \t\t\t**" << endl;
+	cout << "**\t\t7 --- 归并排序 \t\t\t**" << endl;
+	cout << "**\t\t8 --- 基数排序 \t\t\t**" << endl;
+	cout << "**\t\t9 --- 退出程序 \t\t\t**" << endl;
+	cout << "===================================================" << endl;
+	Info information; //存储排序算法的信息
+	bool running = true;//选择退出时变为false
+	int choice;//选择排序算法
+	int randomNum = 0;//随机数的个数
+	//输入随机数的个数
+	cout << "输入随机数的个数: ";
 	cin >> randomNum;
-	while (randomNum <= 0) {
-		cout << "wrong number, please retype: ";
+	while (!cin.good() || randomNum <= 0) {
+		cout << "输入错误,请重新输入: ";
+		cin.clear();
 		cin >> randomNum;
 	}
-	//make random nums
+	//生成随机数数组
+	int* randomArr = new int[static_cast<int>(randomNum)];//随机数数组
+	int* copyArr = new int[static_cast<int>(randomNum)];//复制随机数组的数组
 	for (size_t i = 0; i < randomNum; i++) {
 		randomArr[i] = rand() % (static_cast<int>(1e9));
 	}
+
+	//主循环
 	while (running) {
-		cout << "please choose the sort algorithm:\t\t";
+		//选择排序算法
+		cout << "选择排序算法: ";
 		cin >> choice;
-		switch (choice) {
-		case Bubble:
-			information = BubbleSort(randomArr,randomNum);
-			printOutcome("Bubble Sort");
-		case Selection:
-
-		case Direct:
-
-		case Shell:
-
-		case Quick:
-
-		case Heap:
-
-		case Merge:
-
-		case Radix:
-
-		case Exit:
-
-		default:
-			
+		while(!cin.good()&&(choice < 1 || choice > 9)) {
+			cout << "输入错误,请重新输入: ";
+			cin.clear();
+			cin >> choice;
 		}
-
-
+		//复制随机数组,用复制的数组作为参数,防止改变原数组,以便下次排序	
+		for (size_t i = 0; i < randomNum; i++) {
+			copyArr[i] = randomArr[i];
+		}
+#if DEBUG
+		cout << endl;
+		printArray(copyArr,randomNum);
+#endif
+		switch (static_cast<SortType>(choice)) {
+		case Bubble:
+			information = BubbleSort(copyArr, randomNum);
+			printOutcome("冒泡排序", information);
+			break;
+		case Selection:
+			
+			break;
+		case Direct:
+			
+			break;
+		case Shell:
+			
+			break;
+		case Quick:
+			
+			break;
+		case Heap:
+			
+			break;
+		case Merge:
+			
+			break;
+		case Radix:
+			
+			break;
+		case Exit:
+			running = false;
+			break;
+		}
+		cout << endl;
+#ifdef DEBUG
+		printArray(copyArr,randomNum);
+#endif
+		
 	}
-	
 
+	delete[] randomArr;
+	delete[] copyArr;
 	return 0;
 }

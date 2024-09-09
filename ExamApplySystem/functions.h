@@ -1,12 +1,8 @@
 #pragma once
 #include <iostream>
-#include <chrono>
+#include "basics.h"
 using namespace std;
 
-
-struct Info;
-class Timer;
-
-void printOutcome(const char*);
+void printOutcome(const char* ch, const Info& info);
 
 Info BubbleSort(int arr[], int length);
