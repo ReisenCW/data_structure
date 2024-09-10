@@ -3,19 +3,24 @@
 #include <ctime>
 #include <chrono>
 #include <iomanip> 
+#include <thread>
 using namespace std;
+
+//两个atomic量,用于控制排序线程的取消(对于时间过长的)
+static std::atomic<bool> stopSorting = false;
+static std::atomic<bool> sortingDone = false;
 
 #define DEBUG 0
 
 //调试用代码
 #if DEBUG
 void printArray(int arr[],int length) {
-	cout << "数组为: ";
+	std::cout << "数组为: ";
 	for (size_t i = 0; i < length; i++) {
-		cout << arr[i] << " ";
+		std::cout << arr[i] << " ";
 	}
-	cout << endl;
-	cout << endl;
+	std::cout << endl;
+	std::cout << endl;
 }
 #endif
 
@@ -57,25 +62,50 @@ public:
 */
 //打印结果
 void printOutcome(const char* ch, const Info& info) {
-	cout << ch << "所用时间: \t" << std::fixed << std::setprecision(4) << info.time << "毫秒" << endl; //输出精度为小数点后4位
-	cout << ch << "交换次数: \t" << info.exchangeTimes << "次" << endl;
+	if (info.exchangeTimes != -1) //若为-1,则表示取消排序
+	{
+		std::cout << ch << "所用时间: \t" << std::fixed << std::setprecision(4) << info.time << "毫秒" << endl; //输出精度为小数点后4位
+		std::cout << ch << "交换次数: \t" << info.exchangeTimes << "次" << endl;
+	}
 }
 
 //打印菜单
 void printMenu() {
-	cout << "**\t\t  排序算法比较 \t\t\t**" << endl;
-	cout << "==================================================" << endl;
-	cout << "**\t\t0 --- 清屏 \t\t\t**" << endl;
-	cout << "**\t\t1 --- 冒泡排序 \t\t\t**" << endl;
-	cout << "**\t\t2 --- 选择排序 \t\t\t**" << endl;
-	cout << "**\t\t3 --- 直接插入排序 \t\t**" << endl;
-	cout << "**\t\t4 --- 希尔排序 \t\t\t**" << endl;
-	cout << "**\t\t5 --- 快速排序 \t\t\t**" << endl;
-	cout << "**\t\t6 --- 堆排序 \t\t\t**" << endl;
-	cout << "**\t\t7 --- 归并排序 \t\t\t**" << endl;
-	cout << "**\t\t8 --- 基数排序 \t\t\t**" << endl;
-	cout << "**\t\t9 --- 退出程序 \t\t\t**" << endl;
-	cout << "==================================================" << endl;
+	std::cout << "**\t\t  排序算法比较 \t\t\t**" << endl;
+	std::cout << "==================================================" << endl;
+	std::cout << "**\t\t0 --- 清屏 \t\t\t**" << endl;
+	std::cout << "**\t\t1 --- 冒泡排序 \t\t\t**" << endl;
+	std::cout << "**\t\t2 --- 选择排序 \t\t\t**" << endl;
+	std::cout << "**\t\t3 --- 直接插入排序 \t\t**" << endl;
+	std::cout << "**\t\t4 --- 希尔排序 \t\t\t**" << endl;
+	std::cout << "**\t\t5 --- 快速排序 \t\t\t**" << endl;
+	std::cout << "**\t\t6 --- 堆排序 \t\t\t**" << endl;
+	std::cout << "**\t\t7 --- 归并排序 \t\t\t**" << endl;
+	std::cout << "**\t\t8 --- 基数排序 \t\t\t**" << endl;
+	std::cout << "**\t\t9 --- 退出程序 \t\t\t**" << endl;
+	std::cout << "==================================================" << endl;
+}
+
+//用于多线程,-1取消排序
+void monitorInput() {
+	int input;
+	//等待6秒,若6秒内没有完成排序,则提示用户输入-1取消排序
+	for(int i = 0;i < 6;i++){
+		if (sortingDone) return;
+		this_thread::sleep_for(chrono::seconds(1));//等待1秒
+	}
+	while (!sortingDone) {
+		std::cout << "输入-1取消排序: ";
+		cin >> input;
+		if (input == -1) {
+			stopSorting = true;
+			std::cout << "\t 取消排序" << endl;
+		}
+		else {
+			std::cout << "\t 无效输入" << endl;
+		}
+		this_thread::sleep_for(chrono::seconds(1));
+	}
 }
 
 //冒泡排序
@@ -83,9 +113,9 @@ Info BubbleSort(int arr[], int length) {
 	Info result;
 	{
 		Timer t(&result);//计时器
-		for (int i = 0; i < length; i++)
+		for (int i = 0; i < length && !stopSorting; i++)
 		{
-			for (int j = 0; j < length - i - 1; j++) {
+			for (int j = 0; j < length - i - 1 && !stopSorting; j++) {
 				if (arr[j] > arr[j + 1]) {
 					//如果arr[j]大于arr[j+1]，交换两者
 					int temp = arr[j];
@@ -95,7 +125,9 @@ Info BubbleSort(int arr[], int length) {
 				}
 			}
 		}
+		sortingDone = true;
 	}
+	if(stopSorting)	result.exchangeTimes = -1;
 	return result;
 }
 
@@ -104,9 +136,9 @@ Info SelectionSort(int arr[], int length) {
 	Info result;
 	{
 		Timer t(&result);//计时器
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < length && !stopSorting; i++) {
 			int minIndex = i;
-			for (int j = i + 1; j < length; j++) {
+			for (int j = i + 1; j < length && !stopSorting; j++) {
 				if (arr[j] < arr[minIndex]) {
 					minIndex = j;//找出下标i之后最小的数,和arr[i]交换
 				}
@@ -117,7 +149,9 @@ Info SelectionSort(int arr[], int length) {
 			arr[minIndex] = temp;
 			result.exchangeTimes++;
 		}
+		sortingDone = true;
 	}
+	if (stopSorting)	result.exchangeTimes = -1;
 	return result;
 }
 
@@ -126,17 +160,19 @@ Info DirectInsertion(int arr[], int length) {
 	Info result;
 	{
 		Timer t(&result);//计时器
-		for (int i = 1; i < length; i++) {
+		for (int i = 1; i < length && !stopSorting; i++) {
 			int j = i;
 			int temp = arr[j];
-			while (j > 0 && temp < arr[j - 1]) {
+			while (j > 0 && temp < arr[j - 1] && !stopSorting) {
 				arr[j] = arr[j - 1];
 				j--;
 			}
 			arr[j] = temp;
 			result.exchangeTimes++;
 		}
+		sortingDone = true;
 	}
+	if (stopSorting)	result.exchangeTimes = -1;
 	return result;
 }
 
@@ -146,13 +182,13 @@ Info DirectInsertion(int arr[], int length) {
 //快速排序
 void QuickSortRecursion(int arr[], int left, int right, Info& result) //递归快排
 {
-	if (left >= right) return;
+	if (left >= right || stopSorting) return;
 	int i = left, j = right;
 	//选取中间值作为pivot,使得左边的数小于pivot,右边的数大于pivot
 	int pivot = arr[left + ((right - left) >> 1)];//这种写法防止溢出
-	while (i <= j) {
-		while (arr[i] < pivot) i++;//寻找左边大于pivot的数
-		while (arr[j] > pivot) j--;//寻找右边小于pivot的数
+	while (i <= j && !stopSorting) {
+		while (arr[i] < pivot && !stopSorting) i++;//寻找左边大于pivot的数
+		while (arr[j] > pivot && !stopSorting) j--;//寻找右边小于pivot的数
 		if (i <= j) {
 			//交换
 			int temp = arr[i];
@@ -174,6 +210,8 @@ Info QuickSort(int arr[], int length) {
 		Timer t(&result);//计时器
 		QuickSortRecursion(arr, 0, length - 1, result);
 	}
+	sortingDone = true;
+	if (stopSorting)	result.exchangeTimes = -1;
 	return result;
 }
 
@@ -212,10 +250,10 @@ int main() {
 	int choice;//选择排序算法
 	int randomNum = 0;//随机数的个数
 	//输入随机数的个数
-	cout << "输入随机数的个数: ";
+	std::cout << "输入随机数的个数: ";
 	cin >> randomNum;
 	while (!cin.good() || randomNum <= 0) {
-		cout << "输入错误,请重新输入: ";
+		std::cout << "输入错误,请重新输入: ";
 		cin.clear();
 		cin >> randomNum;
 	}
@@ -225,14 +263,18 @@ int main() {
 	for (size_t i = 0; i < randomNum; i++) {
 		randomArr[i] = rand() % (static_cast<int>(1e9));
 	}
-
+	
 	//主循环
 	while (running) {
+		//初始化信息
+		information.exchangeTimes = -1;
+		stopSorting = false;
+		sortingDone = false;
 		//选择排序算法
-		cout << "选择排序算法: ";
+		std::cout << "选择排序算法: ";
 		cin >> choice;
 		while(!cin.good()&&(choice < 0 || choice > 9)) {
-			cout << "输入错误,请重新输入: ";
+			std::cout << "输入错误,请重新输入: ";
 			cin.clear();
 			cin >> choice;
 		}
@@ -241,26 +283,33 @@ int main() {
 			copyArr[i] = randomArr[i];
 		}
 #if DEBUG
-		cout << endl;
-		cout << "排序前";
+		std::cout << endl;
+		std::cout << "排序前";
 		printArray(copyArr,randomNum);
 #endif
+		//多线程处理退出排序算法
+		thread inputThread(monitorInput);
 		switch (static_cast<SortType>(choice)) {
 		case Clear:
+			sortingDone = true;
 			system("cls");//清屏
 			printMenu();//打印菜单
-			cout << "输入随机数的个数: " << randomNum;//打印随机数的个数
+			inputThread.join();
+			std::cout << "输入随机数的个数: " << randomNum;//打印随机数的个数
 			break;
 		case Bubble:
 			information = BubbleSort(copyArr, randomNum);
+			inputThread.join();
 			printOutcome("冒泡排序", information);
 			break;
 		case Selection:
 			information = SelectionSort(copyArr, randomNum);
+			inputThread.join();
 			printOutcome("选择排序", information);
 			break;
 		case Direct:
 			information = DirectInsertion(copyArr, randomNum);
+			inputThread.join();
 			printOutcome("直接插入排序", information);
 			break;
 		case Shell:
@@ -268,6 +317,7 @@ int main() {
 			break;
 		case Quick:
 			information = QuickSort(copyArr,randomNum);
+			inputThread.join();
 			printOutcome("快速排序",information);
 			break;
 		case Heap:
@@ -283,9 +333,9 @@ int main() {
 			running = false;
 			break;
 		}
-		cout << endl;
+		std::cout << endl;
 #if DEBUG
-		cout << "排序后";
+		std::cout << "排序后";
 		printArray(copyArr,randomNum);
 #endif
 		
