@@ -10,7 +10,7 @@ using namespace std;
 static std::atomic<bool> stopSorting = false;
 static std::atomic<bool> sortingDone = false;
 
-#define DEBUG 0
+#define DEBUG 1
 
 //调试用代码
 #if DEBUG
@@ -219,7 +219,56 @@ Info QuickSort(int arr[], int length) {
 
 
 //归并排序
+void MergeRecursion(int arr[], int left, int mid, int right, Info& result) {
+	int i = left, j = mid+1,k = 0;
+	int* newArr = new int[right - left + 1];
+	for (i = left, j = mid + 1; i <= mid && j <= right; k++) {
+		if (arr[i] < arr[j]) {
+			newArr[k] = arr[i];
+			i++;
+		}
+		else {
+			newArr[k] = arr[j];
+			j++;
+		}
+	}
+	while(i <= mid) {
+		newArr[k] = arr[i];
+		k++;
+		i++;
+	}
+	while (j <= right) {
+		newArr[k] = arr[j];
+		k++;
+		j++;
+	}
 
+	for (int index = left; index <= right; index++) {
+		arr[index] = newArr[index-left];
+		result.exchangeTimes++;
+	}
+	delete[] newArr;
+}
+
+
+void DividRecursion(int arr[], int left, int right, Info& result) {
+	if (left >= right) return;
+	int mid = left + ((right - left) >> 1);
+	DividRecursion(arr, left, mid, result);
+	DividRecursion(arr, mid + 1, right, result);
+	MergeRecursion(arr, left, mid, right, result);
+}
+
+Info MergeSort(int arr[], int length) {
+	Info result;
+	{
+		Timer t(&result);//计时器
+		DividRecursion(arr, 0, length - 1, result);
+	}
+	sortingDone = true;
+	if (stopSorting)	result.exchangeTimes = -1;
+	return result;
+}
 
 //基数排序
 
@@ -313,7 +362,9 @@ int main() {
 			printOutcome("直接插入排序", information);
 			break;
 		case Shell:
-			
+			//information = ShellSort(copyArr,randomNum);
+			inputThread.join();
+			printOutcome("希尔排序", information);
 			break;
 		case Quick:
 			information = QuickSort(copyArr,randomNum);
@@ -321,16 +372,24 @@ int main() {
 			printOutcome("快速排序",information);
 			break;
 		case Heap:
-			
+			//information = HeapSort(copyArr,randomNum);
+			inputThread.join();
+			printOutcome("堆排序", information);
 			break;
 		case Merge:
-			
+			information = MergeSort(copyArr, randomNum);
+			inputThread.join();
+			printOutcome("归并排序", information);
 			break;
 		case Radix:
-			
+			//information = RadixSort(copyArr,randomNum);
+			inputThread.join();
+			printOutcome("基数排序", information);
 			break;
 		case Exit:
 			running = false;
+			sortingDone = true;
+			inputThread.join();
 			break;
 		}
 		std::cout << endl;
