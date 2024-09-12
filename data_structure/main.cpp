@@ -10,7 +10,7 @@ using namespace std;
 static std::atomic<bool> stopSorting = false;
 static std::atomic<bool> sortingDone = false;
 
-#define DEBUG 1
+#define DEBUG 0
 
 //调试用代码
 #if DEBUG
@@ -238,50 +238,33 @@ Info QuickSort(int arr[], int length) {
 }
 
 //堆排序
-void BuildHeap(int arr[],int length,int i,Info& result) //构建最大堆
-{
-	int left = 2 * i + 1;
-	int right = 2 * i + 2;
-	while (left < length && !stopSorting) {
-		//找出两个子节点中最大的那个
-		int maxChild = left;
-		if(right < length && arr[right] > arr[maxChild]) {
-			maxChild = right;
-		}
-		if (arr[i] < arr[maxChild]) {
-			//交换子节点和父节点
-			int temp = arr[i];
-			arr[i] = arr[maxChild];
-			arr[maxChild] = temp;
+void BuildHeap(int arr[], int start, int m, Info& result) {
+	int i = start;
+	int j = 2 * i + 1;
+	while (j <= m && !stopSorting) {
+		if (j < m && arr[j] < arr[j + 1]) j++;//如果右节点在范围内,且右节点大于左节点,则j指向右节点
+		//若子节点大于父节点,则交换,并继续向下调整
+		if (arr[i] < arr[j]) {
+			swap(arr[i], arr[j]);
+			i = j;
+			j = 2 * i + 1;
 			result.exchangeTimes++;
-			//i指向子节点,重新计算子节点位置,继续循环
-			i = maxChild;
-			left = 2 * i + 1;
-			right = 2 * i + 2;
 		}
-		else {
-			break;
-		}
+		else break;
 	}
 }
-
 Info HeapSort(int arr[], int length) {
 	Info result;
 	{
 		Timer t(&result); //计时器
 		int len = length;
-		while (len > 1 && !stopSorting)
-		{
-			//构建最大堆
-			for (int i = len/2 - 1; i >= 0 && !stopSorting; i--) {
-				BuildHeap(arr, len, i, result);
-			}
-			//交换堆顶和最后一个元素
-			int temp = arr[0];
-			arr[0] = arr[len - 1];
-			arr[len - 1] = temp;
-			len--;
-			result.exchangeTimes++;
+		//构造大根堆
+		for(int i=len/2;i>=0 && !stopSorting;--i)
+			BuildHeap(arr,i,len-1,result);
+		//交换堆顶和最后一个元素,然后调整堆为大根堆
+		while (len-- && !stopSorting) {
+			swap(arr[0], arr[len]);
+			BuildHeap(arr, 0, len - 1,result);
 		}
 	}
 	sortingDone = true;
@@ -294,7 +277,7 @@ Info HeapSort(int arr[], int length) {
 void MergeRecursion(int arr[], int left, int mid, int right, Info& result) {
 	int i = left, j = mid+1,k = 0;
 	int* newArr = new int[right - left + 1];
-	for (i = left, j = mid + 1; i <= mid && j <= right; k++) {
+	for (i = left, j = mid + 1; i <= mid && j <= right && !stopSorting; k++) {
 		if (arr[i] < arr[j]) {
 			newArr[k] = arr[i];
 			i++;
@@ -304,18 +287,18 @@ void MergeRecursion(int arr[], int left, int mid, int right, Info& result) {
 			j++;
 		}
 	}
-	while(i <= mid) {
+	while(i <= mid && !stopSorting) {
 		newArr[k] = arr[i];
 		k++;
 		i++;
 	}
-	while (j <= right) {
+	while (j <= right && !stopSorting) {
 		newArr[k] = arr[j];
 		k++;
 		j++;
 	}
 
-	for (int index = left; index <= right; index++) {
+	for (int index = left; index <= right && !stopSorting; index++) {
 		arr[index] = newArr[index-left];
 		result.exchangeTimes++;
 	}
@@ -343,7 +326,107 @@ Info MergeSort(int arr[], int length) {
 }
 
 //基数排序
+struct Node //存储数据的节点
+{
+	int data;
+	Node* next = nullptr;
+};
 
+struct Bucket //链式存储的桶
+{
+	Node* head = nullptr;
+	Node* tail = nullptr;
+	void push(int data)//push data
+	{
+		if (head == nullptr) {
+			head = new Node{ data,nullptr };
+			tail = head;
+		}
+		else {
+			tail->next = new Node{ data,nullptr };
+			tail = tail->next;
+		}
+	}
+
+	int pop_front()//pop data
+	{
+		if (head == nullptr) return -1;
+		if (tail == nullptr) return -1;
+		//取元素
+		int data = head->data;
+		//重新设置head
+		if (tail == head) {
+			delete tail;
+			tail = nullptr;
+			head = nullptr;
+		}
+		else {
+			Node* temp = head;
+			head = head->next;
+			delete temp;
+		}
+		return data;
+	}
+
+	~Bucket() {
+		Node* temp = head;
+		while (temp != nullptr) {
+			Node* next = temp->next;
+			delete temp;
+			temp = next;
+		}
+	}
+};
+
+int GetDegree(int num, int digit) //获取位,个位为1,向左编号递增 
+{
+	for (int i = 0; i < digit-1; i++) {
+		num /= 10;
+	}
+	return num % 10;
+}
+
+Info RadixSort(int arr[], int length) {
+	Info result;
+	Bucket* radixArr = new Bucket[10];//用来存储按位排序的数
+	int radix = 10;
+	int max = arr[0];
+	for (int i = 1; i < length; i++) {
+		if (arr[i] > max) {
+			max = arr[i];
+		}
+	}
+	int maxDegree = 1;
+	while (max / 10 != 0) {
+		maxDegree++;
+		max /= 10;
+	}
+	int k = 1;//位数
+	{
+		Timer t(&result);//计时器
+		while (k <= maxDegree && (!stopSorting)) //若最大值取位也为0,则排序结束
+		{
+			for (int i = 0; i < length && !stopSorting; i++) //按位分入桶中
+			{
+				radixArr[GetDegree(arr[i], k)].push(arr[i]);
+			}
+			int index = 0;
+			for (int i = 0; i < radix && !stopSorting; i++) //从桶中取出
+			{
+				while (radixArr[i].head != nullptr && !stopSorting) {
+					arr[index] = radixArr[i].pop_front();
+					index++;
+					result.exchangeTimes++;
+				}
+			}
+			k++;
+		}
+	}
+	delete[] radixArr;
+	sortingDone = true;
+	if (stopSorting)	result.exchangeTimes = -1;
+	return result;
+}
 
 
 /*
@@ -454,7 +537,7 @@ int main() {
 			printOutcome("归并排序", information);
 			break;
 		case Radix:
-			//information = RadixSort(copyArr,randomNum);
+			information = RadixSort(copyArr,randomNum);
 			inputThread.join();
 			printOutcome("基数排序", information);
 			break;
