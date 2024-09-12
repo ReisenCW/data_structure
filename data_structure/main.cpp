@@ -177,8 +177,30 @@ Info DirectInsertion(int arr[], int length) {
 }
 
 //希尔排序
-
-
+Info ShellSort(int arr[], int length) {
+	Info result;
+	{
+		Timer t(&result);//计时器
+		int gap = length;
+		do{
+			gap = gap / 3 + 1;//缩小gap,最后一次循环gap为1
+			//gap分组,每组进行直接插入排序
+			for (int i = gap; i < length && !stopSorting; i++) {
+				int j = i;
+				int temp = arr[j];
+				while (j >= gap && temp < arr[j - gap] && !stopSorting) {
+					arr[j] = arr[j - gap];
+					j -= gap;
+				}
+				arr[j] = temp;
+				result.exchangeTimes++;
+			}			
+		} while (gap > 1 && !stopSorting);
+	}
+	sortingDone = true;
+	if (stopSorting)	result.exchangeTimes = -1;
+	return result;
+}
 //快速排序
 void QuickSortRecursion(int arr[], int left, int right, Info& result) //递归快排
 {
@@ -220,7 +242,7 @@ void BuildHeap(int arr[],int length,int i,Info& result) //构建最大堆
 {
 	int left = 2 * i + 1;
 	int right = 2 * i + 2;
-	while (left < length) {
+	while (left < length && !stopSorting) {
 		//找出两个子节点中最大的那个
 		int maxChild = left;
 		if(right < length && arr[right] > arr[maxChild]) {
@@ -248,10 +270,10 @@ Info HeapSort(int arr[], int length) {
 	{
 		Timer t(&result); //计时器
 		int len = length;
-		while (len > 1) 
+		while (len > 1 && !stopSorting)
 		{
 			//构建最大堆
-			for (int i = len/2 - 1; i >= 0; i--) {
+			for (int i = len/2 - 1; i >= 0 && !stopSorting; i--) {
 				BuildHeap(arr, len, i, result);
 			}
 			//交换堆顶和最后一个元素
@@ -412,7 +434,7 @@ int main() {
 			printOutcome("直接插入排序", information);
 			break;
 		case Shell:
-			//information = ShellSort(copyArr,randomNum);
+			information = ShellSort(copyArr,randomNum);
 			inputThread.join();
 			printOutcome("希尔排序", information);
 			break;
