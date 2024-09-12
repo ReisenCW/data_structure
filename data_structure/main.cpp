@@ -216,6 +216,56 @@ Info QuickSort(int arr[], int length) {
 }
 
 //堆排序
+void BuildHeap(int arr[],int length,int i,Info& result) //构建最大堆
+{
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+	while (left < length) {
+		//找出两个子节点中最大的那个
+		int maxChild = left;
+		if(right < length && arr[right] > arr[maxChild]) {
+			maxChild = right;
+		}
+		if (arr[i] < arr[maxChild]) {
+			//交换子节点和父节点
+			int temp = arr[i];
+			arr[i] = arr[maxChild];
+			arr[maxChild] = temp;
+			result.exchangeTimes++;
+			//i指向子节点,重新计算子节点位置,继续循环
+			i = maxChild;
+			left = 2 * i + 1;
+			right = 2 * i + 2;
+		}
+		else {
+			break;
+		}
+	}
+}
+
+Info HeapSort(int arr[], int length) {
+	Info result;
+	{
+		Timer t(&result); //计时器
+		int len = length;
+		while (len > 1) 
+		{
+			//构建最大堆
+			for (int i = len/2 - 1; i >= 0; i--) {
+				BuildHeap(arr, len, i, result);
+			}
+			//交换堆顶和最后一个元素
+			int temp = arr[0];
+			arr[0] = arr[len - 1];
+			arr[len - 1] = temp;
+			len--;
+			result.exchangeTimes++;
+		}
+	}
+	sortingDone = true;
+	if (stopSorting)	result.exchangeTimes = -1;
+	return result;
+}
 
 
 //归并排序
@@ -372,7 +422,7 @@ int main() {
 			printOutcome("快速排序",information);
 			break;
 		case Heap:
-			//information = HeapSort(copyArr,randomNum);
+			information = HeapSort(copyArr,randomNum);
 			inputThread.join();
 			printOutcome("堆排序", information);
 			break;
