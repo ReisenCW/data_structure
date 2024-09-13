@@ -325,56 +325,42 @@ Info MergeSort(int arr[], int length) {
 	return result;
 }
 
-//基数排序
-struct Node //存储数据的节点
-{
+class Node {
+public:
 	int data;
-	Node* next = nullptr;
+	int next;
 };
 
-struct Bucket //链式存储的桶
-{
-	Node* head = nullptr;
-	Node* tail = nullptr;
-	void push(int data)//push data
-	{
-		if (head == nullptr) {
-			head = new Node{ data,nullptr };
-			tail = head;
+class StaticList {
+public:
+	int head;
+	int tail;
+	int size;
+	int length;
+	Node* vector;
+	StaticList(int l) :head(1),tail(1),length(0),size(l+1)
+	{	
+		//空出vector[0]
+		vector = new Node[l+1];
+		for (int i = 1; i < l; i++) {
+			vector[i].next = i+1;
 		}
-		else {
-			tail->next = new Node{ data,nullptr };
-			tail = tail->next;
-		}
+		vector[l].next = 1;
+		vector[0].next = 1;
 	}
 
-	int pop_front()//pop data
-	{
-		if (head == nullptr) return -1;
-		if (tail == nullptr) return -1;
-		//取元素
-		int data = head->data;
-		//重新设置head
-		if (tail == head) {
-			delete tail;
-			tail = nullptr;
-			head = nullptr;
+	void push(int val) {
+		if (length >= size) {
+			cerr << "StaticList is full" << endl;
+			return;
 		}
-		else {
-			Node* temp = head;
-			head = head->next;
-			delete temp;
-		}
-		return data;
+		vector[tail].data = val;
+		tail = vector[tail].next;
+		length++;
 	}
 
-	~Bucket() {
-		Node* temp = head;
-		while (temp != nullptr) {
-			Node* next = temp->next;
-			delete temp;
-			temp = next;
-		}
+	~StaticList() {
+		delete[] vector;
 	}
 };
 
@@ -388,8 +374,12 @@ int GetDegree(int num, int digit) //获取位,个位为1,向左编号递增
 
 Info RadixSort(int arr[], int length) {
 	Info result;
-	Bucket* radixArr = new Bucket[10];//用来存储按位排序的数
-	int radix = 10;
+	//Bucket* radixArr = new Bucket[10];//用来存储按位排序的数
+	//把数组arr中的数据存入静态链表中
+	StaticList* staticList = new StaticList(length);
+	for (int i = 1; i <= length; i++) {
+		staticList->push(arr[i-1]);
+	}
 	int max = arr[0];
 	for (int i = 1; i < length; i++) {
 		if (arr[i] > max) {
@@ -401,28 +391,69 @@ Info RadixSort(int arr[], int length) {
 		maxDegree++;
 		max /= 10;
 	}
-	int k = 1;//位数
+
 	{
 		Timer t(&result);//计时器
-		while (k <= maxDegree && (!stopSorting)) //若最大值取位也为0,则排序结束
-		{
-			for (int i = 0; i < length && !stopSorting; i++) //按位分入桶中
-			{
-				radixArr[GetDegree(arr[i], k)].push(arr[i]);
+		for (int degree = 1; degree <= maxDegree; degree++) {
+			int front[10] = { 0 };//每个队列的头指针
+			int rear[10] = { 0 };//每个队列的尾指针
+			int currentListIndex = staticList->head;//当前静态链表的索引
+			for (int i = 0; i < length && !stopSorting; i++) {
+				//放在哪个桶中
+				int index = GetDegree(staticList->vector[currentListIndex].data, degree);				result.exchangeTimes++;
+				//如果该桶为空,则初始化
+				if (front[index] == 0) {
+					front[index] = currentListIndex;
+					rear[index] = currentListIndex;
+				}
+				//如果不为空,则把当前元素放在桶的尾部
+				else {
+					staticList->vector[rear[index]].next = currentListIndex;
+					rear[index] = currentListIndex;
+				}
+				//链表指针后移,指向下一个元素
+				currentListIndex = staticList->vector[currentListIndex].next;
 			}
-			int index = 0;
-			for (int i = 0; i < radix && !stopSorting; i++) //从桶中取出
-			{
-				while (radixArr[i].head != nullptr && !stopSorting) {
-					arr[index] = radixArr[i].pop_front();
-					index++;
-					result.exchangeTimes++;
+			//把桶中的数据串起来
+			int first = 0;
+			int last = 9;
+			//找到第一个不为空的桶
+			while(front[first] == 0 && !stopSorting) {
+				first++;
+			}
+			//找到最后一个不为空的桶
+			while(front[last] == 0 && !stopSorting) {
+				last--;
+			}
+			//头指针指向第一个不为空的桶中的第一个节点
+			staticList->head = front[first];
+
+			//把非空桶首尾相接
+			for (int i = first; i <= last && !stopSorting; i++) {
+				int j = i + 1;
+				//若为空桶,则跳过
+				if (front[i] == 0) continue;
+				else {
+					//找到下一个不为空的桶
+					while(j <= last && front[j] == 0 && !stopSorting) {
+						j++;
+					}
+					//将前一个桶的尾部指向后一个桶的头部
+					staticList->vector[rear[i]].next = front[j];
+					i = j-1;
 				}
 			}
-			k++;
+			//最后一个不为空的桶中的最后一个节点指向第一个为空的桶中的第一个节点
+			staticList->vector[rear[last]].next = front[first];
 		}
+		//完成排序,把数据赋值给arr
+		int currentIndex = staticList->head;
+		for (int i = 0; i < length && !stopSorting; i++) {
+			arr[i] = staticList->vector[currentIndex].data;
+			currentIndex = staticList->vector[currentIndex].next;
+		}	
 	}
-	delete[] radixArr;
+	delete staticList;
 	sortingDone = true;
 	if (stopSorting)	result.exchangeTimes = -1;
 	return result;
