@@ -89,8 +89,8 @@ void printMenu() {
 //用于多线程,-1取消排序
 void monitorInput() {
 	int input;
-	//等待6秒,若6秒内没有完成排序,则提示用户输入-1取消排序
-	for(int i = 0;i < 6;i++){
+	//等待10秒,若10秒内没有完成排序,则提示用户输入-1取消排序
+	for(int i = 0;i < 10;i++){
 		if (sortingDone) return;
 		this_thread::sleep_for(chrono::seconds(1));//等待1秒
 	}
