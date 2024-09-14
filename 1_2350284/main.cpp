@@ -119,11 +119,11 @@ public:
 	StudentList() :head(nullptr), tail(nullptr) ,size(0){}
 	//添加学生
 	void AddStudent(int id, const String& name, const String& gender, int age, const String& major) {
-		if (head == nullptr) {
+		if (head == nullptr) {//链表为空
 			head = new Node(id, name, gender, age, major);
 			tail = head;
 		}
-		else {
+		else {//链表不为空
 			tail->next = new Node(id, name, gender, age, major);
 			tail->next->prev = tail;
 			tail = tail->next;
@@ -139,7 +139,7 @@ public:
 		}
 		Node* temp = head;
 		Node* newNode = new Node (id, name,gender ,age ,major);
-		if (pos == 1) {
+		if (pos == 1) {//插入到头节点
 			newNode->next = head;
 			head->prev = newNode;
 			head = newNode;
@@ -153,11 +153,11 @@ public:
 		newNode->next = temp->next;
 		newNode->prev = temp;
 		temp->next = newNode;
-		if (newNode->next != nullptr) {
+		if (newNode->next != nullptr) {//如果后面还有节点
 			newNode->next->prev = newNode;
 		}
 		else {
-			tail = newNode;
+			tail = newNode;//后面没有节点,则新节点为尾节点
 		}
 		cout << "插入成功!" << endl;
 		size++;
@@ -179,6 +179,8 @@ public:
 		Node* temp = head;
 		while (temp != nullptr) {
 			if (temp->stu.id == id) {
+				cout << "你删除的考生信息是:" << endl;
+				temp->stu.printInfo();
 				if (temp->prev != nullptr) {
 					temp->prev->next = temp->next;
 				}
@@ -294,8 +296,7 @@ int main() {
 		Print,
 		Exit
 	};
-	bool running = true;//选择Exit时变为false,结束循环
-	while (running) {
+	while (1) {
 		cout << "请选择你要进行的操作:";
 		int choice;
 		cin >> choice;
@@ -328,10 +329,11 @@ int main() {
 			}
 			break;
 		case Delete:
-			cout << "请输入要删除的考生的考号:" << endl;
+			cout << "请输入要删除的考生的考号:";
 			cin >> id;
-			if (cin.good())
+			if (cin.good()) {
 				stuList.DeleteStudent(id);
+			}
 			else {
 				cout << "考号输入错误!" << endl;
 				cin.clear();
@@ -339,7 +341,7 @@ int main() {
 			}
 			break;
 		case Search:
-			cout << "请输入要查找的考生的考号:" << endl;
+			cout << "请输入要查找的考生的考号:";
 			cin >> id;
 			if (cin.good())
 				stuList.SearchStudent(id);
@@ -350,7 +352,7 @@ int main() {
 			}
 			break;
 		case Modify:
-			cout << "请输入要修改的考生的考号:" << endl;
+			cout << "请输入要修改的考生的考号:";
 			cin >> id;
 			if (cin.good())
 				stuList.ModifyStudent(id);
@@ -364,7 +366,8 @@ int main() {
 			stuList.PrintAll();
 			break;
 		case Exit:
-			running = false;
+			cout << "\n感谢使用本系统\n";
+			exit(0);
 			break;
 		}
 	}
