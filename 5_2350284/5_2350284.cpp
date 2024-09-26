@@ -18,6 +18,10 @@ private:
 
 class ListQueue 
 {
+private:
+	int size;
+	Node* front;
+	Node* rear;
 public:
 	ListQueue():size(),front(nullptr), rear(nullptr) {}
 
@@ -30,23 +34,20 @@ public:
 	}
 
 	void push(int val) {
-		//创建新节点
-		Node* temp = new Node(val);
-		//内存是否分配成功
-		if (temp == nullptr) {
+		Node* temp = new Node(val);//创建新节点
+		
+		if (temp == nullptr) {//内存是否分配成功
 			cerr << "内存分配失败" << endl;
 			exit(1);
 		}
-		//队列大小加1
-		size++;
-		//若为空队列
-		if (front == nullptr) {
+		size++;//队列大小加1
+		
+		if (front == nullptr) {//若为空队列
 			front = temp;
 			rear = temp;
 			return;
 		}
-		//不为空队列,则插入到队尾
-		rear->next = temp;
+		rear->next = temp;//不为空队列,则插入到队尾
 		rear = temp;
 	}
 
@@ -57,13 +58,11 @@ public:
 			return false;
 		}
 		//不为空队列
-		//删除队头节点
-		Node* temp = front;
+		Node* temp = front;//删除队头节点
 		front = front->next;
 		delete temp;
 		size--;
-		//若删除后为空队列
-		if (front == nullptr) {
+		if (front == nullptr) {//若删除后为空队列
 			rear = nullptr;
 		}
 	}
@@ -89,11 +88,6 @@ public:
 		cout << endl;
 	}
 #endif
-
-private:
-	int size;
-	Node* front;
-	Node* rear;
 };
 
 int main() {
