@@ -118,5 +118,6 @@ int main() {
 	List S3 = GetIntersection(S1, S2);
 	//Êä³ö½»¼¯
 	S3.printList();
+	system("pause");
 	return 0;
 }

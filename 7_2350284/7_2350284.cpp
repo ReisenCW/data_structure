@@ -118,5 +118,6 @@ int main() {
 	}
 	cout << MiniCost(length, N) << endl;//求解最小花费
 	delete[] length;//释放内存
+	system("pause");
 	return 0;
 }

@@ -134,5 +134,6 @@ int main() {
 	for (int i = 1; i < index; i++) {
 		cout << " " << answer[i];
 	}
+	system("pause");
 	return 0;
 }

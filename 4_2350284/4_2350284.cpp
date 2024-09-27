@@ -152,7 +152,7 @@ int main() {
     answer[index] = '\0';
     cout << answer;
     
-
+    system("pause");
     return 0;
 }
 
