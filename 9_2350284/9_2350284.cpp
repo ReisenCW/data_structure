@@ -1,4 +1,3 @@
-//DAG有向无环图,利用拓扑排序
 #include <iostream>
 using namespace std;
 
@@ -35,6 +34,9 @@ public:
 
 	void Resize(int newSize) {
 		T* temp = new T[newSize];
+		if(size > newSize){
+			size = newSize;
+		}
 		for (int i = 0; i < size; i++) {
 			temp[i] = data[i];
 		}
@@ -199,8 +201,8 @@ public:
 static int N, M;//N个交接点,M个子任务
 Vector<int> earliest;//节点i代表的事件的最早时间
 Vector<int> latest;//节点i代表的事件的最晚时间
-int* KeyActivity;//关键活动
 
+//DAG有向无环图,利用拓扑排序(若发现有环,则直接输出0并return)
 //拓扑排序
 void TopologicalSort(Vector<Vector<Link>>& graph,int* const ind) {
 	ListQueue q;//存放入度为0的节点,用于拓扑排序,求最早完成时间
@@ -267,29 +269,22 @@ void TopologicalSort(Vector<Vector<Link>>& graph,int* const ind) {
 	}
 }
 
-
-
 int main() {
 	cin >> N >> M;
 	Vector<Vector<Link>> graph(N+1);//邻接表
 	earliest.Resize(N + 1);//到达节点i的最早时间
 	latest.Resize(N + 1);//到达节点i的最晚时间
 	int* inDegree = new int[N+1];//入度
-	for(int i = 0; i <= N; i++) {
+	for(int i = 0; i <= N; i++) {//入度初始化为0
 		inDegree[i] = 0;
 	}
 	for (int i = 1; i <= M; i++)	{
 		int id1, id2,cst;
 		cin >> id1 >> id2 >> cst;
 		graph[id1].push_back({ cst,id2 });//id1->id2
-		inDegree[id2]++;
-	}
-	int* keyActivity = new int[N + 1];//关键活动,下标为起点,值为终点
-	for (int i = 0; i < N + 1; i++) {
-		keyActivity[i] = -1;
+		inDegree[id2]++;//id2的入度加1
 	}
 	TopologicalSort(graph,inDegree);
-	delete[] keyActivity;
 	delete[] inDegree;
 	system("pause");
 	return 0;
