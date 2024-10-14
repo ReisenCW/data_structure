@@ -1,3 +1,4 @@
+//家谱管理系统
 #include <iostream>
 using namespace std;
 #define DEBUG 0
@@ -317,7 +318,7 @@ public:
 		}
 		cout << "添加成功!" << endl;
 		cout << fatherName << "的第一代儿女有: ";
-		for (int i = 0; i < childCnt; i++) {
+		for (int i = 0; i < father->ChildCount(); i++) {
 			cout << father->GetSon(i) << " ";
 		}
 		cout << endl;

@@ -1,3 +1,4 @@
+//ÄÁ³¡ÐÞÀí
 #include <iostream>
 #include <cmath>
 using namespace std;
