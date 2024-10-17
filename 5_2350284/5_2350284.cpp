@@ -65,6 +65,7 @@ public:
 		if (front == nullptr) {//若删除后为空队列
 			rear = nullptr;
 		}
+		return true;
 	}
 
 	int getFront() {
