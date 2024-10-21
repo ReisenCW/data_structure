@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 using namespace std;
-#define DEBUG 1
+#define DEBUG 0
 
 //定义String类
 class String {
@@ -248,6 +248,8 @@ private:
 	void AddEdge(const String& dest, int weight);
 	//删除该顶点到dest的边
 	bool DeleteEdge(const String& dest);
+	//判断是否存在从该顶点到dest的边
+	bool HasEdge(const String& dest);
 };
 
 //拷贝构造函数
@@ -300,6 +302,17 @@ bool SourceVertex::DeleteEdge(const String& dest_name) {
 			Node* temp = p->next;
 			p->next = p->next->next;
 			delete temp;
+			return true;
+		}
+		p = p->next;
+	}
+	return false;
+}
+
+bool SourceVertex::HasEdge(const String& dest_name) {
+	Node* p = head;
+	while (p) {
+		if (p->dest_name == dest_name) {
 			return true;
 		}
 		p = p->next;
@@ -361,7 +374,7 @@ size_t NetWork::VertexPos(const String& vertex) {
 	return -1;
 }
 
-////添加顶点
+//添加顶点
 void NetWork::AddVertex() {
 	cout << "请输入顶点的个数 : ";
 	double input = 0;
@@ -382,7 +395,8 @@ void NetWork::AddVertex() {
 			cout << "该顶点已存在，请重新输入: ";
 			cin.clear();
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			return;
+			num++;
+			continue;
 		}
 		vertices.push_back(SourceVertex(vName));
 	}
@@ -421,6 +435,13 @@ void NetWork::AddEdge(){
 			num++;
 			continue;
 		}
+		//判断边是否已经存在
+		if (vertices[v1_position].HasEdge(vertex_2)) {
+			cout << "边已存在" << endl;
+			num++;
+			continue;
+		}
+
 		//添加边(因为是无向图所以要互相添加)
 		vertices[v1_position].AddEdge(vertex_2, weight);
 		vertices[v2_position].AddEdge(vertex_1, weight);
@@ -490,10 +511,14 @@ void NetWork::ShowMST() {
 		int u = -1;
 		//找到key值最小的顶点
 		for (int v = 0; v < vertices.GetSize(); ++v) {
-			if (!inMST[v] && key[v] < min) {
+			if (vertices[v].head != nullptr && !inMST[v] && key[v] < min) {
 				min = key[v];
 				u = v;
 			}
+		}
+		// 如果没有找到合适的顶点，跳出循环
+		if (u == -1) {
+			break;
 		}
 		//将找到的顶点加入最小生成树
 		inMST[u] = true;
@@ -511,7 +536,7 @@ void NetWork::ShowMST() {
 
 	for (size_t i = 0; i < route.GetSize(); ++i) {
 		int index = route[i];
-		if (parent[i] != -1) {
+		if (parent[index] != -1) {
 			cout << vertices[parent[index]].vertex_name << " -<" << key[index] << ">- " << vertices[index].vertex_name << endl;
 		}
 	}
@@ -564,6 +589,11 @@ int main() {
 
 //TEST
 /*
+A
+8
+0 1 2 3 4 5 6 7
+B
+10
 0 1 6
 0 2 1
 0 3 5
