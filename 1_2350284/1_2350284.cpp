@@ -26,6 +26,18 @@ public:
 		}
 		str[length] = '\0';
 	}
+	//重载=运算符
+	String& operator=(const String& string) {
+		if (str != nullptr)
+			delete[] str;
+		length = string.length;
+		str = new char[length + 1];
+		for (int i = 0; i < length; i++) {
+			str[i] = string.str[i];
+		}
+		str[length] = '\0';
+		return *this;
+	}
 	//析构函数
 	~String() {
 		if (str != nullptr)
@@ -79,6 +91,7 @@ istream& operator>>(istream& is, String& s) {
 	return is;
 }
 
+
 class Student;
 class Node;
 class StudentList;
@@ -119,122 +132,15 @@ class StudentList {
 public:
 	StudentList() :head(nullptr), tail(nullptr) ,size(0){}
 	//添加学生
-	void AddStudent(int id, const String& name, const String& gender, int age, const String& major) {
-		if (head == nullptr) {//链表为空
-			head = new Node(id, name, gender, age, major);
-			tail = head;
-		}
-		else {//链表不为空
-			tail->next = new Node(id, name, gender, age, major);
-			tail->next->prev = tail;
-			tail = tail->next;
-		}
-		cout << "添加成功!" << endl;
-		size++;
-	}
+	void AddStudent(int id, const String& name, const String& gender, int age, const String& major);
 	//插入学生
-	void InsertStudent(int id, const String& name, const String gender, int age, const String& major, int pos) {
-		if (pos < 1 || pos > size + 1) {
-			cout << "插入位置错误!" << endl;
-			return;
-		}
-		Node* temp = head;
-		Node* newNode = new Node (id, name,gender ,age ,major);
-		if (pos == 1) {//插入到头节点
-			newNode->next = head;
-			head->prev = newNode;
-			head = newNode;
-			cout << "插入成功!" << endl;
-			size++;
-			return;
-		}
-		for (int i = 1; i < pos - 1; i++) {
-			temp = temp->next;
-		}
-		newNode->next = temp->next;
-		newNode->prev = temp;
-		temp->next = newNode;
-		if (newNode->next != nullptr) {//如果后面还有节点
-			newNode->next->prev = newNode;
-		}
-		else {
-			tail = newNode;//后面没有节点,则新节点为尾节点
-		}
-		cout << "插入成功!" << endl;
-		size++;
-	}
+	void InsertStudent(int id, const String& name, const String gender, int age, const String& major, int pos);
 	//查找学生
-	void SearchStudent(int id) {
-		Node* temp = head;
-		while (temp != nullptr) {
-			if (temp->stu.id == id) {
-				temp->stu.printInfo();
-				return;
-			}
-			temp = temp->next;
-		}
-		cout << "未找到考生!" << endl;
-	}
+	void SearchStudent(int id);
 	//删除学生
-	void DeleteStudent(int id) {
-		Node* temp = head;
-		while (temp != nullptr) {
-			if (temp->stu.id == id) {
-				cout << "你删除的考生信息是:" << endl;
-				temp->stu.printInfo();
-				if (temp->prev != nullptr) {
-					temp->prev->next = temp->next;
-				}
-				else {
-					head = temp->next;
-					head->prev = nullptr;
-				}
-				if (temp->next != nullptr) {
-					temp->next->prev = temp->prev;
-				}
-				else {
-					tail = temp->prev;
-					tail->next = nullptr;
-				}
-				delete temp;
-				cout << "删除成功!" << endl;
-				size--;
-				return;
-			}
-			else {
-				temp = temp->next;
-			}
-		}
-		cout << "未找到考生!" << endl;
-	}
+	void DeleteStudent(int id);
 	//修改学生
-	void ModifyStudent(int id) {
-		Node* temp = head;
-		while (temp != nullptr) {
-			if (temp->stu.id == id) {
-				cout << "请输入新的考生的考号,姓名,性别,年龄,报考类别!" << endl;
-				cout << "考号\t姓名\t性别\t年龄\t报考类别\n";
-				int id, age;
-				String name;
-				String gender;
-				String major;
-				cin >> id >> name >> gender >> age >> major;
-				if (cin.good() && (gender == "男" || gender == "女")) {
-					temp->stu = Student(id, name, gender, age, major);
-					cout << "修改成功!" << endl;
-				}
-				else
-				{
-					cout << "无效输入." << endl;
-					cin.clear();
-					cin.ignore(1024, '\n');
-				}
-				return;
-			}
-			temp = temp->next;
-		}
-		cout << "未找到考生!" << endl;
-	}
+	void ModifyStudent(int id);
 	//打印全部
 	void PrintAll() {
 		//打印内容
@@ -254,6 +160,123 @@ public:
 		}
 	}
 };
+
+void StudentList::AddStudent(int id, const String& name, const String& gender, int age, const String& major) {
+	if (head == nullptr) {//链表为空
+		head = new Node(id, name, gender, age, major);
+		tail = head;
+	}
+	else {//链表不为空
+		tail->next = new Node(id, name, gender, age, major);
+		tail->next->prev = tail;
+		tail = tail->next;
+	}
+	cout << "添加成功!" << endl;
+	size++;
+}
+
+void StudentList::InsertStudent(int id, const String& name, const String gender, int age, const String& major, int pos) {
+	if (pos < 1 || pos > size + 1) {
+		cout << "插入位置错误!" << endl;
+		return;
+	}
+	Node* temp = head;
+	Node* newNode = new Node(id, name, gender, age, major);
+	if (pos == 1) {//插入到头节点
+		newNode->next = head;
+		head->prev = newNode;
+		head = newNode;
+		cout << "插入成功!" << endl;
+		size++;
+		return;
+	}
+	for (int i = 1; i < pos - 1; i++) {
+		temp = temp->next;
+	}
+	newNode->next = temp->next;
+	newNode->prev = temp;
+	temp->next = newNode;
+	if (newNode->next != nullptr) {//如果后面还有节点
+		newNode->next->prev = newNode;
+	}
+	else {
+		tail = newNode;//后面没有节点,则新节点为尾节点
+	}
+	cout << "插入成功!" << endl;
+	size++;
+}
+
+void StudentList::SearchStudent(int id) {
+	Node* temp = head;
+	while (temp != nullptr) {
+		if (temp->stu.id == id) {
+			temp->stu.printInfo();
+			return;
+		}
+		temp = temp->next;
+	}
+	cout << "未找到考生!" << endl;
+}
+
+void StudentList::DeleteStudent(int id) {
+	Node* temp = head;
+	while (temp != nullptr) {
+		if (temp->stu.id == id) {
+			cout << "你删除的考生信息是:" << endl;
+			temp->stu.printInfo();
+			if (temp->prev != nullptr) {
+				temp->prev->next = temp->next;
+			}
+			else {
+				head = temp->next;
+				head->prev = nullptr;
+			}
+			if (temp->next != nullptr) {
+				temp->next->prev = temp->prev;
+			}
+			else {
+				tail = temp->prev;
+				tail->next = nullptr;
+			}
+			delete temp;
+			cout << "删除成功!" << endl;
+			size--;
+			return;
+		}
+		else {
+			temp = temp->next;
+		}
+	}
+	cout << "未找到考生!" << endl;
+}
+
+void StudentList::ModifyStudent(int id) {
+	Node* temp = head;
+	while (temp != nullptr) {
+		if (temp->stu.id == id) {
+			cout << "请输入新的考生的考号,姓名,性别,年龄,报考类别!" << endl;
+			cout << "考号\t姓名\t性别\t年龄\t报考类别\n";
+			int id, age;
+			String name;
+			String gender;
+			String major;
+			cin >> id >> name >> gender >> age >> major;
+			if (cin.good() && (gender == "男" || gender == "女")) {
+				temp->stu = Student(id, name, gender, age, major);
+				cout << "修改成功!" << endl;
+			}
+			else
+			{
+				cout << "无效输入." << endl;
+				cin.clear();
+				cin.ignore(1024, '\n');
+			}
+			return;
+		}
+		temp = temp->next;
+	}
+	cout << "未找到考生!" << endl;
+}
 
 int main() {
 	int stuNum = 0;
