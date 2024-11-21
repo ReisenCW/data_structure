@@ -24,7 +24,6 @@ private:
 	Node* rear;
 public:
 	ListQueue():size(),front(nullptr), rear(nullptr) {}
-
 	~ListQueue() {
 		while (front != nullptr) {
 			Node* temp = front;
@@ -32,53 +31,11 @@ public:
 			delete temp;
 		}
 	}
+	void push(int val);
+	bool pop();
+	int getFront();
+	bool empty();
 
-	void push(int val) {
-		Node* temp = new Node(val);//创建新节点
-		
-		if (temp == nullptr) {//内存是否分配成功
-			cerr << "内存分配失败" << endl;
-			exit(1);
-		}
-		size++;//队列大小加1
-		
-		if (front == nullptr) {//若为空队列
-			front = temp;
-			rear = temp;
-			return;
-		}
-		rear->next = temp;//不为空队列,则插入到队尾
-		rear = temp;
-	}
-
-	bool pop() {
-		//若为空队列
-		if (front == nullptr)
-		{
-			return false;
-		}
-		//不为空队列
-		Node* temp = front;//删除队头节点
-		front = front->next;
-		delete temp;
-		size--;
-		if (front == nullptr) {//若删除后为空队列
-			rear = nullptr;
-		}
-		return true;
-	}
-
-	int getFront() {
-		if (front == nullptr) {
-			cerr << "队列为空" << endl;
-			exit(1);
-		}
-		return front->data;
-	}
-
-	bool empty() {
-		return front == nullptr;
-	}
 #if DEBUG
 	void print() {
 		Node* temp = front;
@@ -90,6 +47,53 @@ public:
 	}
 #endif
 };
+
+void ListQueue::push(int val) {
+	Node* temp = new Node(val);//创建新节点
+
+	if (temp == nullptr) {//内存是否分配成功
+		cerr << "内存分配失败" << endl;
+		exit(1);
+	}
+	size++;//队列大小加1
+
+	if (front == nullptr) {//若为空队列
+		front = temp;
+		rear = temp;
+		return;
+	}
+	rear->next = temp;//不为空队列,则插入到队尾
+	rear = temp;
+}
+
+bool ListQueue::pop() {
+	//若为空队列
+	if (front == nullptr)
+	{
+		return false;
+	}
+	//不为空队列
+	Node* temp = front;//删除队头节点
+	front = front->next;
+	delete temp;
+	size--;
+	if (front == nullptr) {//若删除后为空队列
+		rear = nullptr;
+	}
+	return true;
+}
+
+int ListQueue::getFront() {
+	if (front == nullptr) {
+		cerr << "队列为空" << endl;
+		exit(1);
+	}
+	return front->data;
+}
+
+bool ListQueue::empty() {
+	return front == nullptr;
+}
 
 int main() {
 	int N;//顾客总数
