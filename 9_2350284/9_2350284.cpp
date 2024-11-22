@@ -18,13 +18,23 @@ class Vector {
 private:
 	T* data;
 public:
-	int size;//当前元素个数
-	int capacity;//容量
+	size_t size;//当前元素个数
+	size_t capacity;//容量
 public:
-	Vector(int N = 20) :size(0), capacity(N), data(new T[N]) {
+	Vector(size_t N = 20) :size(0), capacity(N), data(new T[N]) {
 		if (data == nullptr) {
 			cerr << "内存分配失败" << endl;
 			exit(1);
+		}
+	}
+
+	Vector(size_t N, const T& fill) :size(N), capacity(N), data(new T[N]) {
+		if (data == nullptr) {
+			cerr << "内存分配失败" << endl;
+			exit(1);
+		}
+		for (size_t i = 0; i < N; i++) {
+			data[i] = fill;
 		}
 	}
 
@@ -33,12 +43,12 @@ public:
 			delete[] data;
 	}
 
-	void Resize(int newSize) {
+	void Resize(size_t newSize) {
 		T* temp = new T[newSize];
-		if(size > newSize){
+		if (size > newSize) {
 			size = newSize;
 		}
-		for (int i = 0; i < size; i++) {
+		for (size_t i = 0; i < size; i++) {
 			temp[i] = data[i];
 		}
 		delete[] data;
@@ -46,22 +56,43 @@ public:
 		capacity = newSize;
 	}
 
-	void push_back(T x) {
+	void push_back(const T& x) {
 		if (size >= capacity) {
 			Resize(capacity << 1);
 		}
 		data[size++] = x;
 	}
 
-	T& operator[](int index) {
-		if (index < 0 || index >= capacity) {
-			cerr << "下标越界" << endl;
-			exit(1);
+	void pop_back() {
+		if (size > 0) {
+			size--;
 		}
-		if(index >= size){
-			size = index+1;
+	}
+
+	T& operator[](size_t index) {
+		if (index < 0 || index >= capacity) {
+			throw std::out_of_range("下标越界");
 		}
 		return data[index];
+	}
+
+	size_t GetSize() {
+		return size;
+	}
+
+	int Erase(size_t index) {
+		if (index < 0 || index >= size) {
+			return -1;
+		}
+		for (size_t i = index; i < size - 1; i++) {
+			data[i] = data[i + 1];
+		}
+		size--;
+		return 0;
+	}
+
+	bool IsEmpty() {
+		return size == 0;
 	}
 };
 
@@ -142,62 +173,62 @@ private:
 	Node* rear;
 public:
 	ListQueue() :size(), front(nullptr), rear(nullptr) {}
-
-	~ListQueue() {
-		while (front != nullptr) {
-			Node* temp = front;
-			front = front->next;
-			delete temp;
-		}
-	}
-
-	void push(int val) {
-		Node* temp = new Node(val);//创建新节点
-
-		if (temp == nullptr) {//内存是否分配成功
-			cerr << "内存分配失败" << endl;
-			exit(1);
-		}
-		size++;//队列大小加1
-
-		if (front == nullptr) {//若为空队列
-			front = temp;
-			rear = temp;
-			return;
-		}
-		rear->next = temp;//不为空队列,则插入到队尾
-		rear = temp;
-	}
-
-	bool pop() {
-		//若为空队列
-		if (front == nullptr)
-		{
-			return false;
-		}
-		//不为空队列
-		Node* temp = front;//删除队头节点
-		front = front->next;
-		delete temp;
-		size--;
-		if (front == nullptr) {//若删除后为空队列
-			rear = nullptr;
-		}
-	}
-
-	int getFront() {
-		if (front == nullptr) {
-			cerr << "队列为空" << endl;
-			exit(1);
-		}
-		return front->data;
-	}
-
-	bool empty() {
-		return front == nullptr;
-	}
+	~ListQueue();
+	void push(int val);
+	bool pop();
+	int getFront();
+	bool empty() { return front == nullptr; }
 };
 
+ListQueue::~ListQueue() {
+	while (front != nullptr) {
+		Node* temp = front;
+		front = front->next;
+		delete temp;
+	}
+}
+
+void ListQueue::push(int val) {
+	Node* temp = new Node(val);//创建新节点
+
+	if (temp == nullptr) {//内存是否分配成功
+		cerr << "内存分配失败" << endl;
+		exit(1);
+	}
+	size++;//队列大小加1
+
+	if (front == nullptr) {//若为空队列
+		front = temp;
+		rear = temp;
+		return;
+	}
+	rear->next = temp;//不为空队列,则插入到队尾
+	rear = temp;
+}
+
+bool ListQueue::pop() {
+	//若为空队列
+	if (front == nullptr)
+	{
+		return false;
+	}
+	//不为空队列
+	Node* temp = front;//删除队头节点
+	front = front->next;
+	delete temp;
+	size--;
+	if (front == nullptr) {//若删除后为空队列
+		rear = nullptr;
+	}
+}
+
+int ListQueue::getFront() {
+	if (front == nullptr) {
+		cerr << "队列为空" << endl;
+		exit(1);
+	}
+	return front->data;
+}
 
 static int N, M;//N个交接点,M个子任务
 Vector<int> earliest;//节点i代表的事件的最早时间

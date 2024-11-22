@@ -10,16 +10,18 @@ using namespace std;
 class String {
 public:
 	char* str;
-	size_t length;
+	int length;
 	//三个构造函数
 	String() :length(0), str(nullptr) {}
-	String(const char* s):length(0), str(nullptr)
-	{
-		if (s) {
-			length = strlen(s);
-			str = new char[length + 1];
-			strcpy(str, s);
+	String(const char* s) {
+		for (int i = 0; s[i] != '\0'; i++) {
+			length++;
 		}
+		str = new char[length + 1];
+		for (int i = 0; i < length; i++) {
+			str[i] = s[i];
+		}
+		str[length] = '\0';
 	}
 	String(const String& s) {
 		length = s.length;
@@ -30,22 +32,17 @@ public:
 		str[length] = '\0';
 	}
 	//重载=运算符
-	String& operator=(const String& s) {
-		if (this == &s) {
-			return *this;
-		}
-		if (str != nullptr) {
+	String& operator=(const String& string) {
+		if (str != nullptr)
 			delete[] str;
-		}
-		length = s.length;
+		length = string.length;
 		str = new char[length + 1];
 		for (int i = 0; i < length; i++) {
-			str[i] = s.str[i];
+			str[i] = string.str[i];
 		}
 		str[length] = '\0';
 		return *this;
 	}
-
 	//析构函数
 	~String() {
 		if (str != nullptr)
@@ -86,9 +83,15 @@ istream& operator>>(istream& is, String& s) {
 	is >> temp;
 	if (is.good()) {
 		delete[] s.str;
-		s.length = strlen(temp);
+		s.length = 0;
+		for (int i = 0; temp[i] != '\0'; i++) {
+			s.length++;
+		}
 		s.str = new char[s.length + 1];
-		strcpy(s.str, temp);
+		for (int i = 0; i < s.length; i++) {
+			s.str[i] = temp[i];
+		}
+		s.str[s.length] = '\0';
 	}
 	return is;
 }
@@ -182,7 +185,6 @@ class Node;
 class SourceVertex;
 class NetWork;
 
-
 class Node {
 	friend class SourceVertex;
 	friend class NetWork;
@@ -205,44 +207,8 @@ public:
 	SourceVertex() :vertex_name(""), head(nullptr), m_size(0) {};
 	SourceVertex(const String& name) : vertex_name(name), head(nullptr), m_size(0) {};
 	SourceVertex(const SourceVertex& other);
-	//重载=运算符
-	SourceVertex& operator=(const SourceVertex& other) 
-	{
-		if (this == &other) {
-			return *this;
-		}
-		vertex_name = other.vertex_name;
-		m_size = other.m_size;
-		Node* p = head;
-		while (p) {
-			Node* q = p->next;
-			delete p;
-			p = q;
-		}
-		p = other.head;
-		if (p == nullptr) {
-			head = nullptr;
-			return *this;
-		}
-		head = new Node(p->src_name, p->dest_name, p->weight);
-		Node* q = head;
-		p = p->next;
-		while (p) {
-			q->next = new Node(p->src_name, p->dest_name, p->weight);
-			q = q->next;
-			p = p->next;
-		}
-		return *this;
-	}
-	
-	~SourceVertex() {
-		Node* p = head;
-		while (p) {
-			Node* q = p->next;
-			delete p;
-			p = q;
-		}
-	}
+	SourceVertex& operator=(const SourceVertex& other);
+	~SourceVertex();
 private:
 	//增加一条从该顶点到dest的边
 	void AddEdge(const String& dest, int weight);
@@ -268,6 +234,44 @@ SourceVertex::SourceVertex(const SourceVertex& other)
 		q->next = new Node(p->src_name, p->dest_name, p->weight);
 		q = q->next;
 		p = p->next;
+	}
+}
+//重载=运算符
+SourceVertex& SourceVertex::operator=(const SourceVertex& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+	vertex_name = other.vertex_name;
+	m_size = other.m_size;
+	Node* p = head;
+	while (p) {
+		Node* q = p->next;
+		delete p;
+		p = q;
+	}
+	p = other.head;
+	if (p == nullptr) {
+		head = nullptr;
+		return *this;
+	}
+	head = new Node(p->src_name, p->dest_name, p->weight);
+	Node* q = head;
+	p = p->next;
+	while (p) {
+		q->next = new Node(p->src_name, p->dest_name, p->weight);
+		q = q->next;
+		p = p->next;
+	}
+	return *this;
+}
+//析构函数
+SourceVertex::~SourceVertex() {
+	Node* p = head;
+	while (p) {
+		Node* q = p->next;
+		delete p;
+		p = q;
 	}
 }
 

@@ -338,31 +338,33 @@ public:
 	int size;
 	int length;
 	Node* vector;
-	StaticList(int l) :head(1),tail(1),length(0),size(l+1)
-	{	
-		//空出vector[0]
-		vector = new Node[l+1];
-		for (int i = 1; i < l; i++) {
-			vector[i].next = i+1;
-		}
-		vector[l].next = 1;
-		vector[0].next = 1;
-	}
-
-	void push(int val) {
-		if (length >= size) {
-			cerr << "StaticList is full" << endl;
-			return;
-		}
-		vector[tail].data = val;
-		tail = vector[tail].next;
-		length++;
-	}
-
+	StaticList(int l) :head(1), tail(1), length(0), size(l + 1);
+	void push(int val);
 	~StaticList() {
 		delete[] vector;
 	}
 };
+
+StaticList::StaticList(int l) :head(1), tail(1), length(0), size(l + 1)
+{
+	//空出vector[0]
+	vector = new Node[l + 1];
+	for (int i = 1; i < l; i++) {
+		vector[i].next = i + 1;
+	}
+	vector[l].next = 1;
+	vector[0].next = 1;
+}
+
+void StaticList::push(int val) {
+	if (length >= size) {
+		cerr << "StaticList is full" << endl;
+		return;
+	}
+	vector[tail].data = val;
+	tail = vector[tail].next;
+	length++;
+}
 
 int GetDegree(int num, int digit) //获取位,个位为1,向左编号递增 
 {

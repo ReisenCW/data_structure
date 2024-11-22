@@ -11,87 +11,85 @@ private:
 	int *data;
 public:
 	PriorityQueue(int N = 20):size(N),count(0),data(new int[N]){}
-
 	~PriorityQueue() {
 		if(data != nullptr)
 			delete[] data;
 	}
-
-	void ShiftUp(int i) {
-		while (i > 0 && data[i] < data[(i - 1) >> 1]) {//如果当前节点小于父节点，交换
-			swap(data[i], data[(i - 1) >> 1]);
-			i = (i - 1) >> 1;//更新当前节点
-		}
-	}
-
-	void ShiftDown(int i) {
-		while ((i << 1) + 1 < count) {//如果有左孩子
-			int j = (i << 1) + 1;//j指向左孩子
-			if (j + 1 < count && data[j + 1] < data[j]) {//如果有右孩子且右孩子小于左孩子
-				j++;//j指向右孩子
-			}
-			if (data[i] <= data[j]) {//如果当前节点小于等于左右孩子中的最小值
-				break;
-			}
-			swap(data[i], data[j]);//交换当前节点和左右孩子中的最小值
-			i = j;//更新当前节点
-		}
-	}
-
-	void Push(int x) {
-		if (size <= count) {
-			Resize(size << 1);
-		}
-		data[count] = x;
-		count++;
-		ShiftUp(count - 1);
-	}
-
-	int Front() const{
-		if(count == 0) {
-			cerr << "PriorityQueue is empty." << endl;
-			exit(1);
-		}
-		return data[0];
-	}
-
-	void Pop() {
-		if (count == 0) {
-			cerr << "PriorityQueue is empty." << endl;
-			exit(1);
-		}
-		data[0] = data[--count];//将最后一个元素放到堆顶,并删除最后一个元素(逻辑上删除,即--count)
-		ShiftDown(0);
-	}
-
-	bool Empty() const {
-		return count == 0;
-	}
-
-	int Count() const {
-		return count;
-	}
-
-	int Size() const {
-		return size;
-	}
-
-	void Resize(int newSize) {
-		int* newData = new int[newSize];
-		if(newData == nullptr) {
-			cerr << "Memory allocation failed." << endl;
-			exit(1);
-		}
-		for (int i = 0; i < count && i < newSize; i++) {
-			newData[i] = data[i];
-		}
-		delete[] data;
-		data = newData;
-	}
+	void ShiftUp(int i);
+	void ShiftDown(int i);
+	void Push(int x);
+	int Front() const;
+	void Pop();
+	bool Empty() const {return count == 0;}
+	int Count() const {return count;}
+	int Size() const {return size;}
+	void Resize(int newSize);
 };
 
+void PriorityQueue::ShiftUp(int i) {
+	while (i > 0 && data[i] < data[(i - 1) >> 1]) {//如果当前节点小于父节点，交换
+		swap(data[i], data[(i - 1) >> 1]);
+		i = (i - 1) >> 1;//更新当前节点
+	}
+}
+
+void PriorityQueue::ShiftDown(int i) {
+	while ((i << 1) + 1 < count) {//如果有左孩子
+		int j = (i << 1) + 1;//j指向左孩子
+		if (j + 1 < count && data[j + 1] < data[j]) {//如果有右孩子且右孩子小于左孩子
+			j++;//j指向右孩子
+		}
+		if (data[i] <= data[j]) {//如果当前节点小于等于左右孩子中的最小值
+			break;
+		}
+		swap(data[i], data[j]);//交换当前节点和左右孩子中的最小值
+		i = j;//更新当前节点
+	}
+}
+
+void PriorityQueue::Push(int x) {
+	if (size <= count) {
+		Resize(size << 1);
+	}
+	data[count] = x;
+	count++;
+	ShiftUp(count - 1);
+}
+
+int PriorityQueue::Front() const {
+	if (count == 0) {
+		cerr << "PriorityQueue is empty." << endl;
+		exit(1);
+	}
+	return data[0];
+}
+
+void PriorityQueue::Pop() {
+	if (count == 0) {
+		cerr << "PriorityQueue is empty." << endl;
+		exit(1);
+	}
+	data[0] = data[--count];//将最后一个元素放到堆顶,并删除最后一个元素(逻辑上删除,即--count)
+	ShiftDown(0);
+}
+
+void PriorityQueue::Resize(int newSize) {
+	int* newData = new int[newSize];
+	if (newData == nullptr) {
+		cerr << "Memory allocation failed." << endl;
+		exit(1);
+	}
+	for (int i = 0; i < count && i < newSize; i++) {
+		newData[i] = data[i];
+	}
+	delete[] data;
+	data = newData;
+}
+
+
+
 //求解最小花费
-int MiniCost(const int* const length,int N) {
+int MiniCost(const int* const length, int N) {
 	PriorityQueue q(N);//创建优先队列
 	for (int i = 0; i < N; i++) {
 		q.Push(length[i]);//将木头长度放入优先队列
