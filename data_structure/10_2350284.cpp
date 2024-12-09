@@ -12,7 +12,7 @@ static std::atomic<bool> sortingDone = false;
 
 #define DEBUG 0
 
-//调试用代码
+//调试用代码,尽量在随机数较少时使用
 #if DEBUG
 void printArray(int arr[],int length) {
 	std::cout << "数组为: ";
