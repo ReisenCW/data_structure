@@ -338,7 +338,7 @@ public:
 	int size;
 	int length;
 	Node* vector;
-	StaticList(int l) :head(1), tail(1), length(0), size(l + 1);
+	StaticList(int l);
 	void push(int val);
 	~StaticList() {
 		delete[] vector;

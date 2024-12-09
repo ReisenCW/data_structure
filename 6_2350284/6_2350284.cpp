@@ -241,7 +241,7 @@ public:
 	void DismissPartialFamily();
 };
 
-FamilyTree* FamilyManager::FindMember(const String& targetName, FamilyTree* Node = nullptr) {//dfs查找家庭成员
+FamilyTree* FamilyManager::FindMember(const String& targetName, FamilyTree* Node) {//dfs查找家庭成员
 	if (Node == nullptr) {
 		Node = ancestor;
 	}

@@ -220,6 +220,7 @@ bool ListQueue::pop() {
 	if (front == nullptr) {//若删除后为空队列
 		rear = nullptr;
 	}
+	return true;
 }
 
 int ListQueue::getFront() {
@@ -289,7 +290,7 @@ void TopologicalSort(Vector<Vector<Link>>& graph,int* const ind) {
 		}
 	}
 	for (int i = 1; i <= N; i++) {
-		for (int j = graph[i].size - 1; j >= 0; j--) {//由于起点相同时需要按输入顺序反向输出,所以从后往前遍历
+		for (int j = (int)graph[i].size - 1; j >= 0; j--) {//由于起点相同时需要按输入顺序反向输出,所以从后往前遍历
 			int v = graph[i][j].to;
 			if (v == -1)	continue;
 			int e = earliest[i];
